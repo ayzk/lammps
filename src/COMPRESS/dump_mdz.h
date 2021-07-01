@@ -51,7 +51,7 @@ class DumpMdz : public Dump {
    void write_data(int, double *);
    void write();
 
-  virtual int modify_param(int, char **);
+   int modify_param(int, char **);
 };
 
 }

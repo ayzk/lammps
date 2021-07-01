@@ -59,6 +59,8 @@ size_t MdzFileWriter::write_float(float *buffer, size_t length) {
 void MdzFileWriter::close() {
 }
 
+void MdzFileWriter::flush() {
+}
 /* ---------------------------------------------------------------------- */
 
 bool MdzFileWriter::isopen() const {

@@ -17,10 +17,12 @@
 
 #ifdef LAMMPS_MDZ
 
-#include "dump_mdz.h"
-#include "error.h"
-#include "file_writer.h"
+#include "atom.h"
+#include "memory.h"
 #include "update.h"
+#include "error.h"
+#include "dump_mdz.h"
+
 
 #include <cassert>
 #include <cstring>
@@ -70,13 +72,13 @@ void DumpMdz::openfile() {
 
         try {
             char *filecurrent = new char[strlen(filestar) + 16];
-            sprintf(filecurrent, "%s" BIGINT_FORMAT ".%s." "%s",
+            sprintf(filecurrent, "%s" BIGINT_FORMAT ".%c." "%s",
                     filestar, update->ntimestep, 'x', ptr + 1);
             xwriter.open(filecurrent);
-            sprintf(filecurrent, "%s" BIGINT_FORMAT ".%s." "%s",
+            sprintf(filecurrent, "%s" BIGINT_FORMAT ".%c." "%s",
                     filestar, update->ntimestep, 'y', ptr + 1);
             ywriter.open(filecurrent);
-            sprintf(filecurrent, "%s" BIGINT_FORMAT ".%s." "%s",
+            sprintf(filecurrent, "%s" BIGINT_FORMAT ".%c." "%s",
                     filestar, update->ntimestep, 'z', ptr + 1);
             zwriter.open(filecurrent);
         } catch (FileWriterException &e) {
@@ -103,7 +105,7 @@ void DumpMdz::write_header(bigint ndump) {
 //  }
 }
 
-void Dump::pack(tagint *ids) {
+void DumpMdz::pack(tagint *ids) {
     int m, n;
 
     tagint *tag = atom->tag;
