@@ -27,7 +27,7 @@
 
 using namespace LAMMPS_NS;
 
-MdzFileWriter::MdzFileWriter() : FileWriter(), {
+MdzFileWriter::MdzFileWriter() : FileWriter(){
 }
 
 /* ---------------------------------------------------------------------- */
