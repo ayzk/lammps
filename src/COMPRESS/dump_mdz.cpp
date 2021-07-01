@@ -45,7 +45,9 @@ DumpMdz::DumpMdz(LAMMPS *lmp, int narg, char **arg) :
 DumpMdz::~DumpMdz() {
 }
 
-DumpMdz::init_style(){}
+void DumpMdz::init_style() {
+
+}
 
 /* ----------------------------------------------------------------------
    generic opening of a dump file
@@ -67,7 +69,7 @@ void DumpMdz::openfile() {
         *ptr = '\0';
 
         try {
-            char* filecurrent = new char[strlen(filestar) + 16];
+            char *filecurrent = new char[strlen(filestar) + 16];
             sprintf(filecurrent, "%s" BIGINT_FORMAT ".%s." "%s",
                     filestar, update->ntimestep, 'x', ptr + 1);
             xwriter.open(filecurrent);
@@ -126,7 +128,7 @@ void Dump::pack(tagint *ids) {
 
 void DumpMdz::write_data(int n, double *mybuf) {
     size_t idx = iFrame * nAtom + iAtom;
-    assert(idx + n =<xbuf.size());
+    assert(idx + n <= xbuf.size());
     for (size_t i = 0; i < n; i++) {
         xbuf[idx + i] = mybuf[i * 3];
         xbuf[idx + i] = mybuf[i * 3 + 1];
