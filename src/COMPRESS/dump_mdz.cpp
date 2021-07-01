@@ -72,13 +72,13 @@ void DumpMdz::openfile() {
 
         try {
             char *filecurrent = new char[strlen(filestar) + 16];
-            sprintf(filecurrent, "%s" BIGINT_FORMAT ".%c." "%s",
+            sprintf(filecurrent, "%s" BIGINT_FORMAT ".%c" "%s",
                     filestar, update->ntimestep, 'x', ptr + 1);
             xwriter.open(filecurrent);
-            sprintf(filecurrent, "%s" BIGINT_FORMAT ".%c." "%s",
+            sprintf(filecurrent, "%s" BIGINT_FORMAT ".%c" "%s",
                     filestar, update->ntimestep, 'y', ptr + 1);
             ywriter.open(filecurrent);
-            sprintf(filecurrent, "%s" BIGINT_FORMAT ".%c." "%s",
+            sprintf(filecurrent, "%s" BIGINT_FORMAT ".%c" "%s",
                     filestar, update->ntimestep, 'z', ptr + 1);
             zwriter.open(filecurrent);
         } catch (FileWriterException &e) {
@@ -133,8 +133,8 @@ void DumpMdz::write_data(int n, double *mybuf) {
     assert(idx + n <= xbuf.size());
     for (size_t i = 0; i < n; i++) {
         xbuf[idx + i] = mybuf[i * 3];
-        xbuf[idx + i] = mybuf[i * 3 + 1];
-        xbuf[idx + i] = mybuf[i * 3 + 2];
+        ybuf[idx + i] = mybuf[i * 3 + 1];
+        zbuf[idx + i] = mybuf[i * 3 + 2];
     }
     iAtom += n;
 }
