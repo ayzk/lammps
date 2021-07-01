@@ -45,6 +45,7 @@ DumpMdz::DumpMdz(LAMMPS *lmp, int narg, char **arg) :
 DumpMdz::~DumpMdz() {
 }
 
+DumpMdz::init_style(){}
 
 /* ----------------------------------------------------------------------
    generic opening of a dump file

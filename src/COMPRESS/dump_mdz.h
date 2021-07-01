@@ -44,6 +44,7 @@ class DumpMdz : public Dump {
   size_t iFrame=0, iAtom=0;
 
   void pack(tagint *);
+  void init_style();
 
   virtual void openfile();
   virtual void write_header(bigint);
