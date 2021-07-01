@@ -24,10 +24,19 @@
 #include <string>
 #include <exception>
 
+#include <mdz.h>
+
 namespace LAMMPS_NS {
 
 class MdzFileWriter : public FileWriter {
     std::string outfile;
+    float level_start, level_offset;
+    int level_num=0;
+    std::vector<float> data_ts0;
+    int cmpr_method_update_interval = 50;
+    int cmpr_method = 2;
+    size_t cmpr_iter = 0;
+
 public:
     MdzFileWriter();
     virtual ~MdzFileWriter();
@@ -37,7 +46,9 @@ public:
     virtual size_t write(const void * buffer, size_t length) override;
     virtual bool isopen() const override;
 
-    size_t write_float(float * buffer, size_t length);
+    void write_float(float * buffer, size_t length);
+    void write_float_compress(float * buffer, size_t nFrame, size_t nAtom);
+
 
 //    void setCompressionLevel(int level);
 //    void setChecksum(bool enabled);
