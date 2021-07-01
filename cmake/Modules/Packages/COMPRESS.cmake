@@ -5,6 +5,7 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(Zstd IMPORTED_TARGET libzstd>=1.4)
 
 target_compile_definitions(lammps PRIVATE -DLAMMPS_MDZ)
+target_include_directories(lammps PRIVATE /Users/kzhao/code/sz3-exaalt/include)
 
 if(Zstd_FOUND)
     target_compile_definitions(lammps PRIVATE -DLAMMPS_ZSTD)

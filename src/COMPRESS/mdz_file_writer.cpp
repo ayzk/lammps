@@ -43,7 +43,7 @@ size_t MdzFileWriter::write(const void *buffer, size_t length) {
     return 0;
 }
 
-void MdzFileWriter::write_float_compress(float *data, size_t nFrame, size_t nAtom) {
+int MdzFileWriter::write_float_compress(float *data, size_t nFrame, size_t nAtom, int cmpr_method_xyz) {
     auto conf = SZ::Config<float, 2>({nFrame, nAtom});
     conf.eb = 1E-2 * 30;
     conf.block_size = 128;
@@ -53,35 +53,44 @@ void MdzFileWriter::write_float_compress(float *data, size_t nFrame, size_t nAto
     bool firsttime = (cmpr_iter == 0);
     if (firsttime) {
         data_ts0 = std::vector<float>(data, data + conf.dims[1]);
-        size_t sample_num = 0.1 * conf.dims[1];
-        sample_num = std::min(sample_num, (size_t) 20000);
-        sample_num = std::max(sample_num, std::min((size_t) 5000, conf.dims[1]));
-        SZ::get_cluster(data, conf.dims[1], level_start, level_offset, level_num, sample_num);
-        if (level_num > conf.dims[1] * 0.25) {
-            level_num = 0;
-        }
-        if (level_num != 0) {
-            printf("start = %.3f , level_offset = %.3f, nlevel=%d\n", level_start, level_offset, level_num);
+        if (cmpr_method_xyz < 0 || cmpr_method_xyz == 0 || cmpr_method_xyz == 1) {
+            size_t sample_num = 0.1 * conf.dims[1];
+            sample_num = std::min(sample_num, (size_t) 20000);
+            sample_num = std::max(sample_num, std::min((size_t) 5000, conf.dims[1]));
+            SZ::get_cluster(data, conf.dims[1], level_start, level_offset, level_num, sample_num);
+            if (level_num > conf.dims[1] * 0.25) {
+                level_num = 0;
+            }
+            if (level_num != 0) {
+                printf("start = %.3f , level_offset = %.3f, nlevel=%d\n", level_start, level_offset, level_num);
+            }
         }
     }
 
-    if (cmpr_method_update_interval > 0 && cmpr_iter % cmpr_method_update_interval == 0) {
-        cmpr_method = select_compressor<float, 2>(conf, data, firsttime, level_start, level_offset, level_num,
-                                                  data_ts0.data());
+    if (cmpr_method_xyz < 0) {
+        if (cmpr_method_update_interval > 0 && cmpr_iter % cmpr_method_update_interval == 0) {
+            cmpr_method = select_compressor<float, 2>(conf, data, firsttime, level_start, level_offset, level_num,
+                                                      data_ts0.data());
+        }
+    } else {
+        cmpr_method = cmpr_method_xyz;
     }
-    const char *compressor_names[] = {"VQ", "VQT", "MT", "LR", "TS"};
-    printf("%lu Compressor = %s\n", cmpr_iter, compressor_names[cmpr_method]);
 
     size_t compressed_size;
     SZ::uchar *comp_data = compress<float, 2>(conf, data, cmpr_method, compressed_size, level_start, level_offset,
                                               level_num, data_ts0.data());
 
+
     std::ofstream fout(outfile, std::ios::binary);
     fout.write(reinterpret_cast<const char *>(&comp_data[0]), compressed_size * sizeof(SZ::uchar));
     fout.close();
-
     delete[]comp_data;
+
+    printf("Compression Iteration = %lu , Compressor = %s, num = %lu, CR = %.3f \n",
+           cmpr_iter, compressor_names[cmpr_method].c_str(), conf.num, conf.num * 4.0 / compressed_size);
+
     cmpr_iter++;
+    return cmpr_method;
 }
 
 /* ---------------------------------------------------------------------- */

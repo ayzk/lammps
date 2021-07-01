@@ -28,31 +28,39 @@
 
 namespace LAMMPS_NS {
 
-class MdzFileWriter : public FileWriter {
-    std::string outfile;
-    float level_start, level_offset;
-    int level_num=0;
-    std::vector<float> data_ts0;
-    int cmpr_method_update_interval = 50;
-    int cmpr_method = 2;
-    size_t cmpr_iter = 0;
+    class MdzFileWriter : public FileWriter {
+        std::string outfile;
+        float level_start, level_offset;
+        int level_num = 0;
+        std::vector<float> data_ts0;
+        int cmpr_method_update_interval = 50;
+        int cmpr_method = 2;
+        size_t cmpr_iter = 0;
+        std::string compressor_names[5] = {"VQ", "VQT", "MT", "LR", "TS"};
 
-public:
-    MdzFileWriter();
-    virtual ~MdzFileWriter();
-    virtual void open(const std::string &path) override;
-    virtual void close() override;
-    virtual void flush() override;
-    virtual size_t write(const void * buffer, size_t length) override;
-    virtual bool isopen() const override;
+    public:
+        MdzFileWriter();
 
-    void write_float(float * buffer, size_t length);
-    void write_float_compress(float * buffer, size_t nFrame, size_t nAtom);
+        virtual ~MdzFileWriter();
+
+        virtual void open(const std::string &path) override;
+
+        virtual void close() override;
+
+        virtual void flush() override;
+
+        virtual size_t write(const void *buffer, size_t length) override;
+
+        virtual bool isopen() const override;
+
+        void write_float(float *buffer, size_t length);
+
+        int write_float_compress(float *buffer, size_t nFrame, size_t nAtom, int);
 
 
 //    void setCompressionLevel(int level);
 //    void setChecksum(bool enabled);
-};
+    };
 
 
 }

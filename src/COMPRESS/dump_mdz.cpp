@@ -148,9 +148,9 @@ void DumpMdz::write() {
         if (iFrame == nFrame) {
             iFrame = 0;
             openfile();
-            xwriter.write_float_compress(xbuf.data(), nFrame, nAtom);
-            ywriter.write_float_compress(ybuf.data(), nFrame, nAtom);
-            zwriter.write_float_compress(zbuf.data(), nFrame, nAtom);
+            int m = xwriter.write_float_compress(xbuf.data(), nFrame, nAtom, -1);
+            ywriter.write_float_compress(ybuf.data(), nFrame, nAtom, m);
+            zwriter.write_float_compress(zbuf.data(), nFrame, nAtom, m);
             xwriter.close();
             ywriter.close();
             zwriter.close();
