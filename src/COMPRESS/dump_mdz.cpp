@@ -143,17 +143,72 @@ void DumpMdz::write_data(int n, double *mybuf) {
 
 void DumpMdz::write() {
     Dump::write();
-    if (filewriter) {
-        iFrame++;
-        if (iFrame == nFrame) {
-            iFrame = 0;
-            openfile();
-            int m = xwriter.write_float_compress(xbuf.data(), nFrame, nAtom, -1);
-            ywriter.write_float_compress(ybuf.data(), nFrame, nAtom, m);
-            zwriter.write_float_compress(zbuf.data(), nFrame, nAtom, m);
-            xwriter.close();
-            ywriter.close();
-            zwriter.close();
+    if (nprocs < 3) {
+        if (filewriter) {
+            iFrame++;
+            if (iFrame == nFrame) {
+                iFrame = 0;
+                openfile();
+                int m = xwriter.write_float_compress(xbuf.data(), nFrame, nAtom, -1);
+                ywriter.write_float_compress(ybuf.data(), nFrame, nAtom, m);
+                zwriter.write_float_compress(zbuf.data(), nFrame, nAtom, m);
+                xwriter.close();
+                ywriter.close();
+                zwriter.close();
+            }
+        }
+    } else {
+        int yproc = nprocs / 3;
+        int zproc = nprocs / 3 * 2;
+        if (filewriter || me == yproc || me == zproc) {
+            iFrame++;
+            if (iFrame == nFrame) {
+                iFrame = 0;
+                char *filestar = filename;
+                char *ptr = strchr(filestar, '*');
+                if (ptr == NULL) {
+                    error->one(FLERR, "dump mdz currently requires * in file name");
+                }
+                *ptr = '\0';
+                char *filecurrent = new char[strlen(filestar) + 16];
+
+                try {
+                    int tmp;
+                    MPI_Status status;
+                    MPI_Request request;
+                    if (filewriter) {
+                        MPI_Recv(&tmp, 0, MPI_INT, fileproc, 0, world, MPI_STATUS_IGNORE);
+                        MPI_Rsend(ybuf.data(), ybuf.size(), MPI_FLOAT, yproc, 0, world);
+
+                        MPI_Recv(&tmp, 0, MPI_INT, fileproc, 0, world, MPI_STATUS_IGNORE);
+                        MPI_Rsend(zbuf.data(), zbuf.size(), MPI_FLOAT, zproc, 0, world);
+
+                        sprintf(filecurrent, "%s" BIGINT_FORMAT ".%c" "%s",
+                                filestar, update->ntimestep, 'x', ptr + 1);
+                        assert(nAtom == ntotal);
+
+                    }
+                    nAtom = ntotal;
+                    if (me == yproc || me == zproc) {
+                        xbuf.resize(nFrame * nAtom);
+                        MPI_Irecv(xbuf.data(), xbuf.size(), MPI_FLOAT, 0, 0, world, &request);
+                        MPI_Send(&tmp, 0, MPI_INT, 0, 0, world);
+                        MPI_Wait(&request, &status);
+//                    MPI_Get_count(&status, MPI_DOUBLE, &nlines);
+
+                        sprintf(filecurrent, "%s" BIGINT_FORMAT ".%c" "%s",
+                                filestar, update->ntimestep, (me == yproc ? 'y' : 'z'), ptr + 1);
+                    }
+
+                    xwriter.open(filecurrent);
+                    xwriter.write_float_compress(xbuf.data(), nFrame, nAtom, -1);
+                    xwriter.close();
+                } catch (FileWriterException &e) {
+                    error->one(FLERR, e.what());
+                }
+
+                *ptr = '*';
+            }
         }
     }
 }
