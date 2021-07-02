@@ -177,10 +177,10 @@ void DumpMdz::write() {
                     MPI_Status status;
                     MPI_Request request;
                     if (filewriter) {
-                        MPI_Recv(&tmp, 0, MPI_INT, fileproc, 0, world, MPI_STATUS_IGNORE);
+                        MPI_Recv(&tmp, 0, MPI_INT, yproc, 0, world, MPI_STATUS_IGNORE);
                         MPI_Rsend(ybuf.data(), ybuf.size(), MPI_FLOAT, yproc, 0, world);
 
-                        MPI_Recv(&tmp, 0, MPI_INT, fileproc, 0, world, MPI_STATUS_IGNORE);
+                        MPI_Recv(&tmp, 0, MPI_INT, zproc, 0, world, MPI_STATUS_IGNORE);
                         MPI_Rsend(zbuf.data(), zbuf.size(), MPI_FLOAT, zproc, 0, world);
 
                         sprintf(filecurrent, "%s" BIGINT_FORMAT ".%c" "%s",
