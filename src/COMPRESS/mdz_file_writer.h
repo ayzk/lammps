@@ -23,8 +23,8 @@
 #include "file_writer.h"
 #include <string>
 #include <exception>
+#include <vector>
 
-#include <mdz.h>
 
 namespace LAMMPS_NS {
 

@@ -20,7 +20,7 @@
 #include <iostream>
 #include "mdz_file_writer.h"
 //#include "fmt/format.h"
-
+#include <MDZ/mdz.hpp>
 using namespace LAMMPS_NS;
 
 MdzFileWriter::MdzFileWriter() : FileWriter() {
@@ -44,11 +44,11 @@ size_t MdzFileWriter::write(const void *buffer, size_t length) {
 }
 
 int MdzFileWriter::write_float_compress(float *data, size_t nFrame, size_t nAtom, int cmpr_method_xyz) {
-    auto conf = SZ::Config<float, 2>({nFrame, nAtom});
-    conf.eb = 1E-2 * 30;
-    conf.block_size = 128;
+    auto conf = SZ::Config({nFrame, nAtom});
+    conf.absErrorBound = 1E-2 * 30;
+    conf.blockSize = 128;
     conf.stride = 128;
-    conf.quant_state_num = 1024;
+    conf.quantbinCnt = 1024;
 
     bool firsttime = (cmpr_iter == 0);
     if (firsttime) {
@@ -69,7 +69,7 @@ int MdzFileWriter::write_float_compress(float *data, size_t nFrame, size_t nAtom
 
     if (cmpr_method_xyz < 0) {
         if (cmpr_method_update_interval > 0 && cmpr_iter % cmpr_method_update_interval == 0) {
-            cmpr_method = select_compressor<float, 2>(conf, data, firsttime, level_start, level_offset, level_num,
+            cmpr_method = LAMMPS_select_compressor<float, 2>(conf, data, firsttime, level_start, level_offset, level_num,
                                                       data_ts0.data());
         }
     } else {
@@ -77,7 +77,7 @@ int MdzFileWriter::write_float_compress(float *data, size_t nFrame, size_t nAtom
     }
 
     size_t compressed_size;
-    SZ::uchar *comp_data = compress<float, 2>(conf, data, cmpr_method, compressed_size, level_start, level_offset,
+    SZ::uchar *comp_data = LAMMPS_compress<float, 2>(conf, data, cmpr_method, compressed_size, level_start, level_offset,
                                               level_num, data_ts0.data());
 
 

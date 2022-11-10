@@ -3,11 +3,15 @@ target_link_libraries(lammps PRIVATE ZLIB::ZLIB)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(Zstd IMPORTED_TARGET libzstd>=1.4)
-
-target_compile_definitions(lammps PRIVATE -DLAMMPS_MDZ)
-target_include_directories(lammps PRIVATE /Users/kzhao/code/sz3-exaalt/include)
+pkg_check_modules(ZSTD IMPORTED_TARGET libzstd>=1.4)
 
 if(Zstd_FOUND)
     target_compile_definitions(lammps PRIVATE -DLAMMPS_ZSTD)
     target_link_libraries(lammps PRIVATE PkgConfig::Zstd)
+endif()
+
+find_package(SZ3 PATHS /Users/kzhao/code/sz3/install)
+if (SZ3_FOUND AND Zstd_FOUND)
+    target_link_libraries(lammps PRIVATE SZ3::SZ3)
+    target_compile_definitions(lammps PRIVATE -DLAMMPS_MDZ)
 endif()
