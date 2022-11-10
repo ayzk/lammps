@@ -10,7 +10,7 @@ if(Zstd_FOUND)
     target_link_libraries(lammps PRIVATE PkgConfig::Zstd)
 endif()
 
-find_package(SZ3 PATHS /Users/kzhao/code/sz3/install)
+find_package(SZ3 PATHS $ENV{HOME}/code/sz3/install)
 if (SZ3_FOUND AND Zstd_FOUND)
     target_link_libraries(lammps PRIVATE SZ3::SZ3)
     target_compile_definitions(lammps PRIVATE -DLAMMPS_MDZ)
